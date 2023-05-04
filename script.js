@@ -10,12 +10,12 @@ const btn = document.getElementById('enter');
 
 
 const displayUser = (data) => {
+    box.style.display = 'block';
     fullName.textContent = data.name ? data.name : "Not Available";
     userName.textContent = data.login ? data.login : "Not Available";
     local.textContent = data.location ? data.location : "Not Available";
     repos.textContent = data.public_repos ? data.public_repos : "Not Available";
-    img.src = data.avatar_url;
-        
+    img.src = data.avatar_url;        
 }
 const validationMessage = (type, msg) => {
     const div = document.createElement('div');
@@ -30,28 +30,44 @@ const validationMessage = (type, msg) => {
 }
 
 
-const getUser = () => {
+// const getUser = () => {
 
+//     if(!input.value)
+//         validationMessage('danger', 'Please Enter a User Name');
+//     else { 
+//         fetch(`https://api.github.com/users/${input.value.toLowerCase().trim()}`)
+//         .then((response) => {
+//             if(response.status === 404)
+//                 throw new Error();
+//             else
+//                 return response.json();
+//         })
+//         .then((data) => {
+//             box.style.display = 'block';
+//             displayUser(data);
+//             input.value = '';
+//         })
+//         .catch((e) => {
+//             validationMessage('warning', 'User data could not be Found')
+//             input.value = '';
+//         });
+//     }
+// };
+
+const asyncGetUser = async() => {
     if(!input.value)
         validationMessage('danger', 'Please Enter a User Name');
-    else { 
-        fetch(`https://api.github.com/users/${input.value.toLowerCase().trim()}`)
-        .then((response) => {
-            if(response.status === 404)
-                throw new Error();
-            else
-                return response.json();
-        })
-        .then((data) => {
-            box.style.display = 'block';
+    else{
+        try{
+            const res = await fetch(`https://api.github.com/users/${input.value.toLowerCase().trim()}`);
+            if(res.status === 404) throw new Error()
+            const data = await res.json();
             displayUser(data);
-            input.value = '';
-        })
-        .catch((e) => {
-            validationMessage('warning', 'User data could not be Found')
-            input.value = '';
-        });
-    }
-};
 
-document.getElementById("enter").addEventListener('click', getUser);
+        } catch(error){
+            validationMessage('warning', 'User data could not be Found')
+        }
+    }
+}
+
+document.getElementById("enter").addEventListener('click', asyncGetUser);
